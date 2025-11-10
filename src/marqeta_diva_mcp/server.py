@@ -16,7 +16,7 @@ from .client import DiVAClient, DiVAAPIError
 load_dotenv()
 
 # Version identifier to verify server restarts
-SERVER_VERSION = "0.2.0"
+SERVER_VERSION = "0.2.1"
 
 # Check if local storage features are enabled
 def is_local_storage_enabled() -> bool:
