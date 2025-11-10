@@ -1,6 +1,12 @@
 # Marqeta DiVA API MCP Server
 
+[![PyPI version](https://badge.fury.io/py/marqeta-diva-mcp.svg)](https://badge.fury.io/py/marqeta-diva-mcp)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Model Context Protocol (MCP) server that provides programmatic access to the Marqeta DiVA (Data insights, Visualization, and Analytics) API. This server enables AI assistants and applications to retrieve aggregated production data from the Marqeta platform for reporting, analytics, and data-driven business decisions.
+
+> **Note:** This is an unofficial community project and is not officially supported by Marqeta.
 
 ## Features
 
@@ -205,6 +211,37 @@ Add this configuration to your Claude Desktop config file:
   }
 }
 ```
+
+## Platform Integrations
+
+This MCP server can be integrated with various AI platforms and tools. We provide comprehensive guides for:
+
+### MCP-Compatible Platforms
+- **Claude Desktop** (see configuration above) - Native MCP support
+- **Claude Code** - CLI with MCP support
+- **Cline** - VS Code extension with MCP support
+- **Other MCP clients** - Any client supporting the MCP protocol
+
+### Non-MCP Platforms
+- **ChatGPT / OpenAI** - Using direct Python client, REST wrapper, or export methods
+- **Jupyter Notebooks** - Direct client usage with pandas
+- **Python Scripts** - Standalone script integration
+- **Custom Applications** - REST API wrappers, Slack/Discord bots, web dashboards
+
+### Integration Guides
+
+📚 **[INTEGRATIONS.md](INTEGRATIONS.md)** - Comprehensive integration guide covering:
+- Detailed setup instructions for each platform
+- Configuration examples and code snippets
+- Troubleshooting tips
+- Best practices for security and performance
+- Custom integration patterns
+
+⚡ **[QUICK_INTEGRATION.md](QUICK_INTEGRATION.md)** - Quick reference guide with:
+- 2-minute Claude Desktop setup
+- 2-minute Claude Code setup
+- 1-minute Python/Jupyter setup
+- Fast troubleshooting tips
 
 ## Available Tools
 
@@ -423,10 +460,46 @@ black src/
 ruff check src/
 ```
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/zvika-finally/marqeta-diva-mcp.git
+cd marqeta-diva-mcp
+
+# Install with development dependencies
+pip install -e ".[dev,rag]"
+
+# Run tests
+python test_fixes_unit.py
+
+# Format code
+black src/
+ruff check src/
+```
+
 ## License
 
-This project is provided as-is for use with Marqeta's DiVA API.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Zvika Badalov** - [zvika.badalov@finally.com](mailto:zvika.badalov@finally.com)
+
+## Acknowledgments
+
+- Built with [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
+- Powered by [Marqeta's DiVA API](https://www.marqeta.com/docs/diva-api/)
 
 ## Support
 
-For API-related questions, contact your Marqeta representative or refer to the official Marqeta documentation.
+- **Issues:** [GitHub Issues](https://github.com/zvika-finally/marqeta-diva-mcp/issues)
+- **Marqeta API Questions:** Contact your Marqeta representative or refer to the [official Marqeta documentation](https://www.marqeta.com/docs/diva-api/introduction/)
+
+## Disclaimer
+
+This is an unofficial community project and is not officially endorsed or supported by Marqeta, Inc. Use at your own risk.
