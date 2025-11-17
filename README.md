@@ -348,6 +348,78 @@ Get detailed chargeback information with transaction dates and types.
 
 **Parameters:** Same as `get_chargebacks_status`
 
+### Reconciliation Tools
+
+#### `get_transaction_token` ⭐ NEW in v0.3.0
+**CRITICAL for reconciliation** - Map Core API transaction tokens to DiVA report transaction tokens.
+
+**Purpose:** Links webhook transaction data to DiVA reporting data. Essential for financial reconciliation workflows.
+
+**Parameters:**
+- `fields`, `filters`, `sort_by`, `count`, `program`
+
+**Example:**
+```json
+{
+  "filters": {
+    "core_api_transaction_token": "xyz123"
+  }
+}
+```
+
+### Monitoring Tools
+
+#### `get_card_counts` 📊 NEW in v0.3.0
+Get card count metrics aggregated over time. Track cards in circulation, active, suspended, etc.
+
+**Parameters:**
+- `aggregation` (string): `day`, `week`, or `month` (required, no detail level)
+- `fields`, `filters`, `sort_by`, `count`, `program`
+
+**Example:**
+```json
+{
+  "aggregation": "day",
+  "count": 30
+}
+```
+
+#### `get_user_counts` 📊 NEW in v0.3.0
+Get user count metrics aggregated over time. Track user base growth and engagement.
+
+**Parameters:**
+- `aggregation` (string): `day`, `week`, or `month` (required, no detail level)
+- `fields`, `filters`, `sort_by`, `count`, `program`
+
+**Example:**
+```json
+{
+  "aggregation": "week",
+  "filters": {
+    "user_type": "BUSINESS"
+  }
+}
+```
+
+### Network Analytics Tools
+
+#### `get_activity_balances_network_detail` 🌐 NEW in v0.3.0
+Get activity balance data broken out by card network (Visa, Mastercard, Maestro, Cirrus, etc.).
+
+**Purpose:** Understand network-specific transaction volumes. Day aggregation only.
+
+**Parameters:**
+- `fields`, `filters`, `sort_by`, `count`, `program`
+- `expand` (string): `pin_purchases_net` or `sig_purchases_net` (comma-delimited for multiple)
+
+**Example:**
+```json
+{
+  "expand": "pin_purchases_net,sig_purchases_net",
+  "count": 10
+}
+```
+
 ### Metadata Tools
 
 #### `list_available_views`

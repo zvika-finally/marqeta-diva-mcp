@@ -16,7 +16,7 @@ from .client import DiVAClient, DiVAAPIError
 load_dotenv()
 
 # Version identifier to verify server restarts
-SERVER_VERSION = "0.2.1"
+SERVER_VERSION = "0.3.0"
 
 # Check if local storage features are enabled
 def is_local_storage_enabled() -> bool:
@@ -435,6 +435,128 @@ BASE_TOOLS = [
             },
         },
     ),
+    # Reconciliation Tools
+    Tool(
+        name="get_transaction_token",
+        description=(
+            "Map Core API transaction tokens to DiVA report transaction tokens. "
+            "CRITICAL for reconciliation workflows - links webhook transaction data to DiVA reports. "
+            "Use this to reconcile transactions between Core API (webhooks) and DiVA reporting data."
+        ),
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Specific fields to return",
+                },
+                "filters": {
+                    "type": "object",
+                    "description": "Filters (e.g., {'core_api_transaction_token': 'xyz', 'diva_transaction_token': 'abc'})"
+                },
+                "sort_by": {"type": "string", "description": "Field to sort by"},
+                "count": {"type": "integer", "description": "Maximum records to return (up to 10,000, default 10,000)"},
+                "program": {"type": "string", "description": "Override default program"},
+            },
+        },
+    ),
+    # Count/Monitoring Tools
+    Tool(
+        name="get_card_counts",
+        description=(
+            "Get card count metrics aggregated over time. Track cards in circulation, active cards, "
+            "suspended cards, and more. Essential for program health monitoring. "
+            "Supports day, week, and month aggregation. "
+            "Note: DiVA API limits results to 10,000 records per query."
+        ),
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "aggregation": {
+                    "type": "string",
+                    "enum": ["day", "week", "month"],
+                    "default": "day",
+                    "description": "Time period for aggregation (no detail level)",
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Specific fields to return",
+                },
+                "filters": {
+                    "type": "object",
+                    "description": "Filters on data fields. For date filtering, use actual date field names with operators."
+                },
+                "sort_by": {"type": "string", "description": "Field to sort by"},
+                "count": {"type": "integer", "description": "Maximum records to return (up to 10,000, default 10,000)"},
+                "program": {"type": "string", "description": "Override default program"},
+            },
+        },
+    ),
+    Tool(
+        name="get_user_counts",
+        description=(
+            "Get user count metrics aggregated over time. Track users with accounts, suspended users, "
+            "and user growth. Essential for program monitoring and analytics. "
+            "Supports day, week, and month aggregation. "
+            "Note: DiVA API limits results to 10,000 records per query."
+        ),
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "aggregation": {
+                    "type": "string",
+                    "enum": ["day", "week", "month"],
+                    "default": "day",
+                    "description": "Time period for aggregation (no detail level)",
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Specific fields to return",
+                },
+                "filters": {
+                    "type": "object",
+                    "description": "Filters on data fields. For date filtering, use actual date field names with operators."
+                },
+                "sort_by": {"type": "string", "description": "Field to sort by"},
+                "count": {"type": "integer", "description": "Maximum records to return (up to 10,000, default 10,000)"},
+                "program": {"type": "string", "description": "Override default program"},
+            },
+        },
+    ),
+    # Network Analytics Tools
+    Tool(
+        name="get_activity_balances_network_detail",
+        description=(
+            "Get activity balance data broken out by card network (Visa, Mastercard, Maestro, Cirrus, etc.). "
+            "Includes PIN and signature purchases by network. Day aggregation only. "
+            "Use 'expand' parameter to break out specific transaction types by network. "
+            "Essential for understanding network-specific transaction volumes."
+        ),
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Specific fields to return",
+                },
+                "filters": {
+                    "type": "object",
+                    "description": "Filters on data fields. For date filtering, use actual date field names with operators."
+                },
+                "sort_by": {"type": "string", "description": "Field to sort by"},
+                "count": {"type": "integer", "description": "Maximum records to return (up to 10,000, default 10,000)"},
+                "expand": {
+                    "type": "string",
+                    "description": "Expandable fields: 'pin_purchases_net' (break out PIN purchases by network), 'sig_purchases_net' (break out signature purchases by network). Comma-delimited for multiple.",
+                },
+                "program": {"type": "string", "description": "Override default program"},
+            },
+        },
+    ),
     # Metadata Tools
     Tool(
         name="list_available_views",
@@ -757,6 +879,27 @@ async def call_tool(name: str, arguments: Any) -> List[TextContent]:
             result = client.get_view("chargebacks", "detail", **arguments)
             return [TextContent(type="text", text=format_response(result))]
 
+        # Reconciliation tools
+        elif name == "get_transaction_token":
+            result = client.get_view("transactiontoken", None, **arguments)
+            return [TextContent(type="text", text=format_response(result))]
+
+        # Count/Monitoring tools
+        elif name == "get_card_counts":
+            aggregation = arguments.pop("aggregation", "day")
+            result = client.get_view("cardcounts", aggregation, **arguments)
+            return [TextContent(type="text", text=format_response(result))]
+
+        elif name == "get_user_counts":
+            aggregation = arguments.pop("aggregation", "day")
+            result = client.get_view("usercounts", aggregation, **arguments)
+            return [TextContent(type="text", text=format_response(result))]
+
+        # Network Analytics tools
+        elif name == "get_activity_balances_network_detail":
+            result = client.get_view("activitybalances/day/networkdetail", None, **arguments)
+            return [TextContent(type="text", text=format_response(result))]
+
         # Metadata tools
         elif name == "list_available_views":
             result = client.get_views_list()
@@ -894,13 +1037,19 @@ async def call_tool(name: str, arguments: Any) -> List[TextContent]:
         elif name == "get_server_version":
             result = {
                 "version": SERVER_VERSION,
-                "message": "If you don't see version 0.2.0, the server needs to be restarted",
+                "message": "If you don't see version 0.3.0, the server needs to be restarted",
                 "rag_features_enabled": RAG_AVAILABLE,
                 "features": {
                     "base_tools": f"{len(BASE_TOOLS)} tools available",
                     "rag_tools": f"{len(RAG_TOOLS)} tools available" if RAG_AVAILABLE else "disabled (set ENABLE_LOCAL_STORAGE=true to enable)",
                 },
-                "fixes_included": [
+                "new_in_v0_3_0": [
+                    "get_transaction_token - Map Core API tokens to DiVA tokens (CRITICAL for reconciliation)",
+                    "get_card_counts - Track card metrics over time (circulation, active, suspended)",
+                    "get_user_counts - Track user base growth and engagement metrics",
+                    "get_activity_balances_network_detail - Break out transactions by card network"
+                ],
+                "previous_fixes": [
                     "Removed non-existent start_date/end_date parameters",
                     "Added sys import to fix export errors",
                     "Updated to correct 10,000 record limit",
